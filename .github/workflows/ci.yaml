@@ -1,0 +1,29 @@
+name: GitHub CI
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: 0 0 * * 0
+
+jobs:
+
+  build:
+    name: compile binary and run docker build 
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Nasm
+      uses: ilammy/setup-nasm@v1
+    - name: checkout repo locally
+      uses: actions/checkout@v2
+    - name: Build something requiring NASM
+      run: |
+        nasm -f elf64 file.asm
+        ld -o file file.o 
+    - name: Build Docker Container
+      run: |
+        docker build --tag file -f Dockerfile .
+    - name: Run built Container
+      run: |
+        docker run file
+        echo $?
